@@ -1,0 +1,75 @@
+<header>
+    <h1>IsaliaPHP Todoer</h1>
+</header>
+<main>
+	<a href="#" id="link_nueva_tarea">Crear Tarea</a>
+	<div id="new_task" style="display:none">
+		<form>
+			<label>Tarea</label><br>
+			<textarea id="task"></textarea>
+			<br>
+			<button id="link_cancelar">Cancelar</button>&nbsp;
+			<button type="button" id="btn_crear_tarea">Crear Tarea</button>
+		</form>
+	</div>
+	<div id="active_todos">
+		<?php foreach($list_of_active_todos as $todo):?>
+	    <article>
+			<label><input class="task" data-id="<?= $todo['id']?>" 
+				type="checkbox"><?=$todo['task']?></label>
+	    </article>
+		<?php endforeach;?>
+		<?php if (count($list_of_active_todos) == 0):?>
+			<p>Excelente! no tienes tareas pendientes</p>
+		<?php endif;?>
+	</div>
+
+	<div id="inactive_todos">
+		<br>
+		<?php foreach($list_of_finished_todos as $todo):?>
+		<article>
+			<label><strike><input class="task" data-id="<?= $todo['id']?>" 
+				type="checkbox" checked><?=$todo['task']?></strike></label>
+					&nbsp;
+			<a href="#" class="eliminar" data-id="<?= $todo['id']?>">Eliminar</a>
+	    </article>
+		<?php endforeach;?>
+
+	</div>	
+</main>
+<script>
+	$(document).off('click', '.task');
+	$(document).on('click', '.task', function(){
+		let id = $(this).data("id");
+		let data = {"checked": $(this).is(":checked") ? 1 : 0}
+		$.post( "<?= PUBLIC_PATH?>todos/update/" + id, data, function( result ) {
+		  window.location.reload();
+		});
+		
+	});	
+	$("#link_nueva_tarea").click(function(evt){
+		evt.preventDefault();
+		$("#new_task").slideDown();
+		$("#task").focus();
+	})
+	$("#link_cancelar").click(function(evt){
+		evt.preventDefault();
+		$("#new_task").slideUp();
+		$("#task").val("");		
+	})
+	$("#btn_crear_tarea").click(function(evt){
+		evt.preventDefault();
+		let data = {"task": $("#task").val()}
+		$.post( "<?= PUBLIC_PATH?>todos/create", data, function( result ) {
+		  window.location.reload();
+		});
+		
+	})	
+	$(document).off('click', '.eliminar');
+	$(document).on('click', '.eliminar', function(){
+		let id = $(this).data("id");
+		$.post( "<?= PUBLIC_PATH?>todos/delete/" + id, function( result ) {
+		  window.location.reload();
+		});
+	});	
+</script>
